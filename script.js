@@ -108,7 +108,7 @@ const getCurrentQuery = () => {
     return queries.get("search");
 };
 const getInstancesNode = (instances) => {
-  console.log({instances})
+    console.log({ instances });
     const instancesNode = document.createElement("div");
     instancesNode.classList.add("instances");
     instances.forEach((instance) => {
@@ -146,14 +146,14 @@ const getBookNode = (book, results) => {
     titleContainer.classList.add("title");
     const title = document.createElement("h1");
     title.innerText = book.title;
-    titleContainer.appendChild(title)
+    titleContainer.appendChild(title);
     header.appendChild(titleContainer);
 
     const authorContainer = document.createElement("div");
     authorContainer.classList.add("author");
     const author = document.createElement("h3");
     author.innerText = book.author;
-    authorContainer.appendChild(author)
+    authorContainer.appendChild(author);
     header.appendChild(authorContainer);
 
     bookNode.appendChild(header);
@@ -173,5 +173,5 @@ const searchAndDisplayResults = (library, searchPhrase) => {
 };
 
 const library = new Library(bookDetails);
-console.log(library)
+console.log(library);
 searchAndDisplayResults(library);
