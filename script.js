@@ -11,6 +11,51 @@ const bookDetails = [
         url: "assets/The Scarlet Letter--Nathaniel Hawthorne.txt",
     },
 ];
+// const hash = (str) => {
+//     let hashValue = 0
+//     for (let i = 0; i < str; i++){
+//         hashValue += str.charCodeAt(i)
+//     }
+// }
+// const rkStringMatch = (line, searchPhrase) => {
+//     // rabin karp string matching
+// }
+const getLPS = (str) => {
+    let i = 1,
+        j = 0,
+        lps = [0];
+    while (i < str.length) {
+        if (str[j] == str[i]) {
+            j++;
+        } else {
+            j = 0;
+        }
+        lps.push(j);
+        i++;
+    }
+    return lps;
+};
+const kmpStringMatch = (line, searchPhrase) => {
+    line = line.toLowerCase()
+    const positions = [];
+    const lps = getLPS(searchPhrase);
+    let i = 0,
+        j = 0;
+    while (i < line.length) {
+        if (line[i] === searchPhrase[j]) {
+            i++;
+            j++;
+        } else {
+            if(j === 0) i++
+            else j = lps[j - 1]
+        }
+        if (j === searchPhrase.length) {
+            positions.push(i - j)
+            j = lps[j - 1]
+        }
+    }
+    return positions;
+};
 class Book {
     constructor(id, title, author, url) {
         this.id = id;
@@ -44,7 +89,31 @@ class Book {
     };
     search = (searchPhrase) => {
         // search for searchPhrase in the book
-        // return object in the format {bookID: {title, author, quote, line, position}}
+        // return object in the format {bookID: {title, author, quote, line, positions}}
+        console.log(`searching for ${searchPhrase}`)
+        const searchWords = searchPhrase.toLowerCase().split(" ");
+        const firstWord = searchWords[0];
+        const lastWord = searchWords[searchWords.length - 1];
+        const middleWords = searchWords.slice(1, searchWords.length - 1);
+        console.log(firstWord, this.index[firstWord])
+        if(this.index[firstWord] === undefined)
+        return []
+        let lineNos = [...this.index[firstWord]];
+        // lineNos.filter(lineNo => middleWords.find(word => this.index[word].has(lineNo)) !== undefined)
+        middleWords.forEach((word) =>
+            lineNos.filter((lineNo) => this.index[word]?.has(lineNo))
+        );
+        const instances = []
+        lineNos.forEach(lineNo => {
+            const positions = kmpStringMatch(this.lines[lineNo], searchPhrase)
+            if(positions.length > 0)
+                instances.push({
+                    quote: this.lines[lineNo],
+                    line: lineNo,
+                    positions: positions
+                })
+        })
+        return instances
     };
 }
 class Library {
@@ -66,32 +135,40 @@ class Library {
     search = (searchPhrase) => {
         // search for searchPhrase in all books in the library
         // return object in the format {bookID: [{quote, line, position}]}
-        return {
-            0: [
-                {
-                    quote: "this is the first quote",
-                    line: 1000,
-                    position: 50,
-                },
-                {
-                    quote: "this is the second quote",
-                    line: 1000,
-                    position: 50,
-                },
-            ],
-            1: [
-                {
-                    quote: "this is the first quote",
-                    line: 1000,
-                    position: 50,
-                },
-                {
-                    quote: "this is the second quote",
-                    line: 1000,
-                    position: 50,
-                },
-            ],
-        };
+        console.log(`searching for ${searchPhrase}`)
+        const instances = {}
+        Object.keys(this.books).forEach(bookID => {
+            const instancesInBook = this.books[bookID].search(searchPhrase)
+            if(instancesInBook.length > 0)
+                instances[bookID] = instancesInBook
+        })
+        return instances
+        // return {
+        //     0: [
+        //         {
+        //             quote: "this is the first quote",
+        //             line: 1000,
+        //             position: 50,
+        //         },
+        //         {
+        //             quote: "this is the second quote",
+        //             line: 1000,
+        //             position: 50,
+        //         },
+        //     ],
+        //     1: [
+        //         {
+        //             quote: "this is the first quote",
+        //             line: 1000,
+        //             position: 50,
+        //         },
+        //         {
+        //             quote: "this is the second quote",
+        //             line: 1000,
+        //             position: 50,
+        //         },
+        //     ],
+        // };
     };
 }
 const getText = async (path) => {
@@ -127,7 +204,7 @@ const getInstancesNode = (instances) => {
 
         const positionNode = document.createElement("div");
         positionNode.classList.add("position");
-        positionNode.innerText = `Position: ${instance.position}`;
+        positionNode.innerText = `Positions: ${instance.positions.join(", ")}`;
         instanceNode.appendChild(positionNode);
 
         instancesNode.appendChild(instanceNode);
@@ -171,7 +248,15 @@ const searchAndDisplayResults = (library, searchPhrase) => {
         resultsContainer.appendChild(bookNode);
     });
 };
+clearResults();
 
 const library = new Library(bookDetails);
 console.log(library);
-searchAndDisplayResults(library);
+const queryForm = document.querySelector("form")
+queryForm.onsubmit = (e) => {
+    e.preventDefault()
+    const formData = new FormData(queryForm)
+    const query = formData.get("search")
+    if(query.length > 5)
+        searchAndDisplayResults(library, query);
+}

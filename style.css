@@ -57,6 +57,8 @@ summary {
     align-items: center;
     padding: 20px;
     gap: 30px;
+    max-height: 30vw;
+    overflow: auto;
 }
 .instance {
     display: grid;
