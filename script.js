@@ -36,7 +36,7 @@ const getLPS = (str) => {
     return lps;
 };
 const kmpStringMatch = (line, searchPhrase) => {
-    line = line.toLowerCase()
+    line = line.toLowerCase();
     const positions = [];
     const lps = getLPS(searchPhrase);
     let i = 0,
@@ -46,15 +46,19 @@ const kmpStringMatch = (line, searchPhrase) => {
             i++;
             j++;
         } else {
-            if(j === 0) i++
-            else j = lps[j - 1]
+            if (j === 0) i++;
+            else j = lps[j - 1];
         }
         if (j === searchPhrase.length) {
-            positions.push(i - j)
-            j = lps[j - 1]
+            positions.push(i - j);
+            j = lps[j - 1];
         }
     }
     return positions;
+};
+const getText = async (path) => {
+    const response = await fetch(path);
+    return await response.text();
 };
 class Book {
     constructor(id, title, author, url) {
@@ -68,7 +72,11 @@ class Book {
     }
     populateContent = async () => {
         const text = await getText(this.url);
-        this.lines = text.split("\r\n").filter((line) => line.length > 0);
+        this.lines = text
+            .replaceAll("\r\n", "\n")
+            .split("\n")
+            .filter((line) => line.length > 0)
+            .map((line) => line.trim());
     };
     createIndex = async () => {
         await this.populateContent();
@@ -90,30 +98,29 @@ class Book {
     search = (searchPhrase) => {
         // search for searchPhrase in the book
         // return object in the format {bookID: {title, author, quote, line, positions}}
-        console.log(`searching for ${searchPhrase}`)
+        console.log(`searching for ${searchPhrase}`);
         const searchWords = searchPhrase.toLowerCase().split(" ");
         const firstWord = searchWords[0];
         const lastWord = searchWords[searchWords.length - 1];
         const middleWords = searchWords.slice(1, searchWords.length - 1);
-        console.log(firstWord, this.index[firstWord])
-        if(this.index[firstWord] === undefined)
-        return []
+        console.log(firstWord, this.index[firstWord]);
+        if (this.index[firstWord] === undefined) return [];
         let lineNos = [...this.index[firstWord]];
         // lineNos.filter(lineNo => middleWords.find(word => this.index[word].has(lineNo)) !== undefined)
         middleWords.forEach((word) =>
             lineNos.filter((lineNo) => this.index[word]?.has(lineNo))
         );
-        const instances = []
-        lineNos.forEach(lineNo => {
-            const positions = kmpStringMatch(this.lines[lineNo], searchPhrase)
-            if(positions.length > 0)
+        const instances = [];
+        lineNos.forEach((lineNo) => {
+            const positions = kmpStringMatch(this.lines[lineNo], searchPhrase);
+            if (positions.length > 0)
                 instances.push({
                     quote: this.lines[lineNo],
                     line: lineNo,
-                    positions: positions
-                })
-        })
-        return instances
+                    positions: positions,
+                });
+        });
+        return instances;
     };
 }
 class Library {
@@ -125,7 +132,7 @@ class Library {
     getBooks = () => {
         this.bookDetails.forEach((bookInfo, id) => {
             this.books[id] = new Book(
-                bookInfo.id,
+                id,
                 bookInfo.title,
                 bookInfo.author,
                 bookInfo.url
@@ -135,54 +142,19 @@ class Library {
     search = (searchPhrase) => {
         // search for searchPhrase in all books in the library
         // return object in the format {bookID: [{quote, line, position}]}
-        console.log(`searching for ${searchPhrase}`)
-        const instances = {}
-        Object.keys(this.books).forEach(bookID => {
-            const instancesInBook = this.books[bookID].search(searchPhrase)
-            if(instancesInBook.length > 0)
-                instances[bookID] = instancesInBook
-        })
-        return instances
-        // return {
-        //     0: [
-        //         {
-        //             quote: "this is the first quote",
-        //             line: 1000,
-        //             position: 50,
-        //         },
-        //         {
-        //             quote: "this is the second quote",
-        //             line: 1000,
-        //             position: 50,
-        //         },
-        //     ],
-        //     1: [
-        //         {
-        //             quote: "this is the first quote",
-        //             line: 1000,
-        //             position: 50,
-        //         },
-        //         {
-        //             quote: "this is the second quote",
-        //             line: 1000,
-        //             position: 50,
-        //         },
-        //     ],
-        // };
+        console.log(`searching for ${searchPhrase}`);
+        const instances = {};
+        Object.keys(this.books).forEach((bookID) => {
+            const instancesInBook = this.books[bookID].search(searchPhrase);
+            if (instancesInBook.length > 0) instances[bookID] = instancesInBook;
+        });
+        return instances;
     };
 }
-const getText = async (path) => {
-    const response = await fetch(path);
-    return await response.text();
-};
 const clearResults = () => {
     document.querySelectorAll(".book").forEach((book) => {
         book.parentElement?.removeChild(book);
     });
-};
-const getCurrentQuery = () => {
-    const queries = new URLSearchParams(window.location.search);
-    return queries.get("search");
 };
 const getInstancesNode = (instances) => {
     console.log({ instances });
@@ -252,11 +224,10 @@ clearResults();
 
 const library = new Library(bookDetails);
 console.log(library);
-const queryForm = document.querySelector("form")
+const queryForm = document.querySelector("form");
 queryForm.onsubmit = (e) => {
-    e.preventDefault()
-    const formData = new FormData(queryForm)
-    const query = formData.get("search")
-    if(query.length > 5)
-        searchAndDisplayResults(library, query);
-}
+    e.preventDefault();
+    const formData = new FormData(queryForm);
+    const query = formData.get("search");
+    if (query.length > 5) searchAndDisplayResults(library, query);
+};
