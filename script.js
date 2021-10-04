@@ -10,6 +10,26 @@ const bookDetails = [
         author: "Nathaniel Hawthorne",
         url: "assets/The Scarlet Letter--Nathaniel Hawthorne.txt",
     },
+    {
+        title: "Grimms' Fairy Tales",
+        author: "Jacob Grimm and Wilhelm Grimm",
+        url: "assets/Grimms' Fairy Tales--Jacob Grimm and Wilhelm Grimm.txt",
+    },
+    {
+        title: "The Adventures of Sherlock Holmes",
+        author: "Sir Arthur Conan Doyle",
+        url: "assets/The Adventures of Sherlock Holmes--Sir Arthur Conan Doyle.txt",
+    },
+    {
+        title: "The Prince",
+        author: "Nicolo Machiavelli",
+        url: "assets/The Prince--Nicolo Machiavelli.txt",
+    },
+    {
+        title: "The Strange Case of Dr. Jekyll and Mr. Hyde",
+        author: "Robert Louis Stevenson",
+        url: "assets/The Strange Case of Dr. Jekyll and Mr. Hyde--Robert Louis Stevenson.txt",
+    }
 ];
 const getLPS = (str) => {
     let i = 1,
@@ -253,11 +273,11 @@ queryForm.onsubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(queryForm);
     const query = formData.get("search");
-    if (query.length > 5) {
+    if (query.length > 2) {
         showError("");
         searchAndDisplayResults(library, query);
     }
     else {
-        showError("Enter query longer than 5 characters");
+        showError("Enter query longer than 2 characters");
     }
 };
