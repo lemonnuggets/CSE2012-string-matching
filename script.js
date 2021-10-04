@@ -79,7 +79,6 @@ class Book {
         this.url = url;
         this.index = {};
         this.lines = [];
-        this.createIndex();
     }
     populateContent = async () => {
         const text = await getText(this.url);
@@ -103,14 +102,16 @@ class Book {
                 });
         });
         console.log(
-            `Index size of ${this.title} is ${Object.keys(this.index).length}`
+            `Index size of ${this.title} is ${
+                Object.keys(this.index).length
+            } ${Date.now()}`
         );
     };
     search = (searchPhrase) => {
         // search for searchPhrase in the book
         // return object in the format {bookID: {title, author, quote, line, positions}}
         console.log(`searching for ${searchPhrase}`);
-        searchPhrase = searchPhrase.toLowerCase()
+        searchPhrase = searchPhrase.toLowerCase();
         const searchWords = searchPhrase.split(" ");
         const firstWord = searchWords[0];
         const lastWord = searchWords[searchWords.length - 1];
@@ -153,12 +154,11 @@ class Library {
         // });
         showError(`Creating indices for ${this.bookDetails.length} books....`);
         const initialTime = Date.now();
-        Promise.all(
-            this.bookDetails.map(
-                (bookInfo, id) =>
-                    new Book(id, bookInfo.title, bookInfo.author, bookInfo.url)
-            )
-        ).then((books) => {
+        const books = this.bookDetails.map(
+            (bookInfo, id) =>
+                new Book(id, bookInfo.title, bookInfo.author, bookInfo.url)
+        );
+        Promise.all(books.map((book) => book.createIndex())).then(() => {
             for (let i = 0; i < books.length; i++) {
                 const book = books[i];
                 this.books[book.id] = book;
@@ -299,3 +299,4 @@ queryForm.onsubmit = (e) => {
         showError("Enter query longer than 2 characters");
     }
 };
+// console.log(new Book(100, bookDetails[0].title, bookDetails[0].author, bookDetails[0].url))
