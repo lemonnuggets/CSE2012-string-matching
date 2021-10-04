@@ -144,14 +144,6 @@ class Library {
         this.getBooks();
     }
     getBooks = () => {
-        // this.bookDetails.forEach((bookInfo, id) => {
-        //     this.books[id] = new Book(
-        //         id,
-        //         bookInfo.title,
-        //         bookInfo.author,
-        //         bookInfo.url
-        //     );
-        // });
         showError(`Creating indices for ${this.bookDetails.length} books....`);
         const initialTime = Date.now();
         const books = this.bookDetails.map(
