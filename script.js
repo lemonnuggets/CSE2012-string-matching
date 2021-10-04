@@ -225,9 +225,18 @@ clearResults();
 const library = new Library(bookDetails);
 console.log(library);
 const queryForm = document.querySelector("form");
+const showError = (message) => {
+    document.querySelector(".error").innerHTML = message
+}
 queryForm.onsubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(queryForm);
     const query = formData.get("search");
-    if (query.length > 5) searchAndDisplayResults(library, query);
+    if (query.length > 5) {
+        showError("");
+        searchAndDisplayResults(library, query);
+    }
+    else {
+        showError("Enter query longer than 5 characters");
+    }
 };

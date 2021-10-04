@@ -87,3 +87,7 @@ summary {
 .hidden {
     height: 0;
 }
+.error{
+    color: rgb(248, 191, 191);
+    margin: 10px 0;
+}
