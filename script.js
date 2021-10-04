@@ -110,7 +110,8 @@ class Book {
         // search for searchPhrase in the book
         // return object in the format {bookID: {title, author, quote, line, positions}}
         console.log(`searching for ${searchPhrase}`);
-        const searchWords = searchPhrase.toLowerCase().split(" ");
+        searchPhrase = searchPhrase.toLowerCase()
+        const searchWords = searchPhrase.split(" ");
         const firstWord = searchWords[0];
         const lastWord = searchWords[searchWords.length - 1];
         const middleWords = searchWords.slice(1, searchWords.length - 1);
