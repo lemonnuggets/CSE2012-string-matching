@@ -29,7 +29,7 @@ const bookDetails = [
         title: "The Strange Case of Dr. Jekyll and Mr. Hyde",
         author: "Robert Louis Stevenson",
         url: "assets/The Strange Case of Dr. Jekyll and Mr. Hyde--Robert Louis Stevenson.txt",
-    }
+    },
 ];
 const getLPS = (str) => {
     let i = 1,
@@ -138,7 +138,7 @@ class Library {
     constructor(bookDetails) {
         this.bookDetails = bookDetails;
         this.books = {};
-        this.linesSearched = 0
+        this.linesSearched = 0;
         this.getBooks();
     }
     getBooks = () => {
@@ -150,25 +150,35 @@ class Library {
         //         bookInfo.url
         //     );
         // });
-        showError(`Creating indices for ${this.bookDetails.length} books....`)
-        Promise.all(this.bookDetails.map((bookInfo, id) => new Book(id, bookInfo.title, bookInfo.author, bookInfo.url))).then(books => {
-            for (let i = 0; i < books.length; i++){
-                const book = books[i]
-                this.books[book.id] = book
+        showError(`Creating indices for ${this.bookDetails.length} books....`);
+        const initialTime = Date.now();
+        Promise.all(
+            this.bookDetails.map(
+                (bookInfo, id) =>
+                    new Book(id, bookInfo.title, bookInfo.author, bookInfo.url)
+            )
+        ).then((books) => {
+            for (let i = 0; i < books.length; i++) {
+                const book = books[i];
+                this.books[book.id] = book;
             }
-            showResultInfo(`Successfully created indices for ${books.length} books!!`)
-        })
+            showResultInfo(
+                `Successfully read and created indices for ${
+                    books.length
+                } books in ${Date.now() - initialTime} ms!!`
+            );
+        });
     };
     search = (searchPhrase) => {
         // search for searchPhrase in all books in the library
         // return object in the format {bookID: [{quote, line, position}]}
-        this.linesSearched = 0
+        this.linesSearched = 0;
         console.log(`searching for ${searchPhrase}`);
         const instances = {};
         Object.keys(this.books).forEach((bookID) => {
             const instancesInBook = this.books[bookID].search(searchPhrase);
             if (instancesInBook.length > 0) instances[bookID] = instancesInBook;
-            this.linesSearched += this.books[bookID].lines.length
+            this.linesSearched += this.books[bookID].lines.length;
         });
         return instances;
     };
@@ -179,31 +189,29 @@ const clearResults = () => {
     });
 };
 const showError = (message) => {
-    const errorElement = document.querySelector('.error')
-    const resultInfoElement = document.querySelector('.resultInfo')
+    const errorElement = document.querySelector(".error");
+    const resultInfoElement = document.querySelector(".resultInfo");
     if (message.length === 0) {
-        errorElement.classList.add('disappear')
-        resultInfoElement.classList.remove('disappear')
+        errorElement.classList.add("disappear");
+        resultInfoElement.classList.remove("disappear");
+    } else {
+        errorElement.classList.remove("disappear");
+        resultInfoElement.classList.add("disappear");
+        errorElement.innerHTML = message;
     }
-    else {
-        errorElement.classList.remove('disappear')
-        resultInfoElement.classList.add('disappear')
-        errorElement.innerHTML = message
-    }
-}
+};
 const showResultInfo = (message) => {
-    const resultInfoElement = document.querySelector('.resultInfo')
-    const errorElement = document.querySelector('.error')
+    const resultInfoElement = document.querySelector(".resultInfo");
+    const errorElement = document.querySelector(".error");
     if (message.length === 0) {
-        resultInfoElement.classList.add('disappear')
-        errorElement.classList.remove('disappear')
+        resultInfoElement.classList.add("disappear");
+        errorElement.classList.remove("disappear");
+    } else {
+        resultInfoElement.classList.remove("disappear");
+        errorElement.classList.add("disappear");
+        resultInfoElement.innerHTML = message;
     }
-    else {
-        resultInfoElement.classList.remove('disappear')
-        errorElement.classList.add('disappear')
-        resultInfoElement.innerHTML = message
-    }
-}
+};
 const getInstancesNode = (instances) => {
     console.log({ instances });
     const instancesNode = document.createElement("div");
@@ -261,11 +269,13 @@ const getBookNode = (book, results) => {
 };
 const searchAndDisplayResults = (library, searchPhrase) => {
     clearResults();
-    const initialTime = Date.now()
-    showResultInfo("Loading...")
+    const initialTime = Date.now();
+    showResultInfo("Loading...");
     const results = library.search(searchPhrase);
     const timeTaken = Date.now() - initialTime;
-    showResultInfo(`Time taken to search ${library.linesSearched} lines = ${timeTaken} ms`)
+    showResultInfo(
+        `Time taken to search ${library.linesSearched} lines = ${timeTaken} ms`
+    );
     const resultsContainer = document.querySelector(".results");
     Object.keys(results).forEach((bookID) => {
         const bookNode = getBookNode(library.books[bookID], results[bookID]);
@@ -284,8 +294,7 @@ queryForm.onsubmit = (e) => {
     if (query.length > 2) {
         showError("");
         searchAndDisplayResults(library, query);
-    }
-    else {
+    } else {
         showError("Enter query longer than 2 characters");
     }
 };
