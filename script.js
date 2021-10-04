@@ -11,15 +11,6 @@ const bookDetails = [
         url: "assets/The Scarlet Letter--Nathaniel Hawthorne.txt",
     },
 ];
-// const hash = (str) => {
-//     let hashValue = 0
-//     for (let i = 0; i < str; i++){
-//         hashValue += str.charCodeAt(i)
-//     }
-// }
-// const rkStringMatch = (line, searchPhrase) => {
-//     // rabin karp string matching
-// }
 const getLPS = (str) => {
     let i = 1,
         j = 0,
@@ -127,6 +118,7 @@ class Library {
     constructor(bookDetails) {
         this.bookDetails = bookDetails;
         this.books = {};
+        this.linesSearched = 0
         this.getBooks();
     }
     getBooks = () => {
@@ -142,11 +134,13 @@ class Library {
     search = (searchPhrase) => {
         // search for searchPhrase in all books in the library
         // return object in the format {bookID: [{quote, line, position}]}
+        this.linesSearched = 0
         console.log(`searching for ${searchPhrase}`);
         const instances = {};
         Object.keys(this.books).forEach((bookID) => {
             const instancesInBook = this.books[bookID].search(searchPhrase);
             if (instancesInBook.length > 0) instances[bookID] = instancesInBook;
+            this.linesSearched += this.books[bookID].lines.length
         });
         return instances;
     };
@@ -156,6 +150,32 @@ const clearResults = () => {
         book.parentElement?.removeChild(book);
     });
 };
+const showError = (message) => {
+    const errorElement = document.querySelector('.error')
+    const resultInfoElement = document.querySelector('.resultInfo')
+    if (message.length === 0) {
+        errorElement.classList.add('disappear')
+        resultInfoElement.classList.remove('disappear')
+    }
+    else {
+        errorElement.classList.remove('disappear')
+        resultInfoElement.classList.add('disappear')
+        errorElement.innerHTML = message
+    }
+}
+const showResultInfo = (message) => {
+    const resultInfoElement = document.querySelector('.resultInfo')
+    const errorElement = document.querySelector('.error')
+    if (message.length === 0) {
+        resultInfoElement.classList.add('disappear')
+        errorElement.classList.remove('disappear')
+    }
+    else {
+        resultInfoElement.classList.remove('disappear')
+        errorElement.classList.add('disappear')
+        resultInfoElement.innerHTML = message
+    }
+}
 const getInstancesNode = (instances) => {
     console.log({ instances });
     const instancesNode = document.createElement("div");
@@ -213,7 +233,11 @@ const getBookNode = (book, results) => {
 };
 const searchAndDisplayResults = (library, searchPhrase) => {
     clearResults();
+    const initialTime = Date.now()
+    showResultInfo("Loading...")
     const results = library.search(searchPhrase);
+    const timeTaken = Date.now() - initialTime;
+    showResultInfo(`Time taken to search ${library.linesSearched} lines = ${timeTaken} ms`)
     const resultsContainer = document.querySelector(".results");
     Object.keys(results).forEach((bookID) => {
         const bookNode = getBookNode(library.books[bookID], results[bookID]);
@@ -225,9 +249,6 @@ clearResults();
 const library = new Library(bookDetails);
 console.log(library);
 const queryForm = document.querySelector("form");
-const showError = (message) => {
-    document.querySelector(".error").innerHTML = message
-}
 queryForm.onsubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(queryForm);

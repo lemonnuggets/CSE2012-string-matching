@@ -91,3 +91,10 @@ summary {
     color: rgb(248, 191, 191);
     margin: 10px 0;
 }
+.resultInfo{
+    color: rgb(179, 248, 179);
+    margin: 10px 0;
+}
+.disappear{
+    display: none;
+}
