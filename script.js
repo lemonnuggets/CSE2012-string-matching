@@ -142,14 +142,22 @@ class Library {
         this.getBooks();
     }
     getBooks = () => {
-        this.bookDetails.forEach((bookInfo, id) => {
-            this.books[id] = new Book(
-                id,
-                bookInfo.title,
-                bookInfo.author,
-                bookInfo.url
-            );
-        });
+        // this.bookDetails.forEach((bookInfo, id) => {
+        //     this.books[id] = new Book(
+        //         id,
+        //         bookInfo.title,
+        //         bookInfo.author,
+        //         bookInfo.url
+        //     );
+        // });
+        showError(`Creating indices for ${this.bookDetails.length} books....`)
+        Promise.all(this.bookDetails.map((bookInfo, id) => new Book(id, bookInfo.title, bookInfo.author, bookInfo.url))).then(books => {
+            for (let i = 0; i < books.length; i++){
+                const book = books[i]
+                this.books[book.id] = book
+            }
+            showResultInfo(`Successfully created indices for ${books.length} books!!`)
+        })
     };
     search = (searchPhrase) => {
         // search for searchPhrase in all books in the library
